@@ -108,47 +108,51 @@ const OwnerSearchField = ({
   }
 
   return (
-    <div className="w-full relative" ref={wrapperRef}>
-      <InputField
-        label={label}
-        placeholder={placeholder}
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          setIsOpen(true);
-        }}
-        onFocus={() => setIsOpen(true)}
-        state="default"
-        variant="md"
-        rightIcon={<SearchIcon />}
-        fullWidth
-      />
-
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
-          {filteredResults.length === 0 ? (
-            <div className="px-4 py-3 text-gray-500 text-sm">{noResultsText}</div>
-          ) : (
-            filteredResults.map((owner) => (
-              <div
-                key={owner.employeeId}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex items-center gap-2"
-                onClick={() => handleSelect(owner)}
-              >
-                <AvatarChip
-                  label={getFullName(owner)}
-                  avatarProps={{
-                    src: owner.authPic ?? undefined,
-                    firstName: owner.firstName,
-                    lastName: owner.lastName ?? "",
-                    size: "sm"
-                  }}
-                />
-              </div>
-            ))
-          )}
-        </div>
+    <div className="w-full">
+      {label && (
+        <label className="subtitle1 leading-normal text-black block mb-2">{label}</label>
       )}
+      <div className="relative" ref={wrapperRef}>
+        <InputField
+          placeholder={placeholder}
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          state="default"
+          variant="md"
+          rightIcon={<SearchIcon />}
+          fullWidth
+        />
+
+        {isOpen && (
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
+            {filteredResults.length === 0 ? (
+              <div className="px-4 py-3 text-gray-500 text-sm">{noResultsText}</div>
+            ) : (
+              filteredResults.map((owner) => (
+                <div
+                  key={owner.employeeId}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex items-center gap-2"
+                  onClick={() => handleSelect(owner)}
+                >
+                  <AvatarChip
+                    label={getFullName(owner)}
+                    avatarProps={{
+                      src: owner.authPic ?? undefined,
+                      firstName: owner.firstName,
+                      lastName: owner.lastName ?? "",
+                      size: "sm"
+                    }}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

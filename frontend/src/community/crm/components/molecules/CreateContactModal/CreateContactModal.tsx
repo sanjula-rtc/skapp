@@ -222,17 +222,19 @@ const CreateContactModal = () => {
         noResultsText={translateText(["noCompanyFound"])}
       />
 
-      <InputPhoneNumber
-        inputName="contactNumber"
-        label={translateText(["contactNo"])}
-        placeHolder={translateText(["enterContactNo"])}
-        value={values.contactNumber}
-        countryCodeValue={values.countryCode}
-        onChange={handleContactNumber}
-        onChangeCountry={handleCountryChange}
-        labelStyles={{ fontWeight: 500}}
-        fullComponentStyle={{ mt: "0rem", mb: "0rem" }}
-      />
+      <div>
+        <InputPhoneNumber
+          inputName="contactNumber"
+          label={translateText(["contactNo"])}
+          placeHolder={translateText(["enterContactNo"])}
+          value={values.contactNumber}
+          countryCodeValue={values.countryCode}
+          onChange={handleContactNumber}
+          onChangeCountry={handleCountryChange}
+          labelStyles={{ fontWeight: 500}}
+          fullComponentStyle={{ mt: "0rem" }}
+        />
+      </div>
 
       <OwnerSearchField
         label={translateText(["contactOwner"])}

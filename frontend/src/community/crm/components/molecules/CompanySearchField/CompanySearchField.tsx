@@ -72,6 +72,7 @@ const CompanySearchField = ({
         state="default"
         variant="md"
         rightIcon={<SearchIcon />}
+        customStyles={{ gap: "gap-2" }}
         fullWidth
       />
 
