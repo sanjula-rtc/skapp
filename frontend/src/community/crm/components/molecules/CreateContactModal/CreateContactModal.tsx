@@ -48,7 +48,7 @@ const CreateContactModal = () => {
 
   const { setIsAddContactModalOpen, setCrmModalType } = useCrmStore((state) => state);
 
-  const { isCrmAdmin, isCrmSalesManager, isCrmSalesRepresentative, isSuperadmin } = useSessionData();
+  const { isCrmAdmin, isCrmSalesManager, isCrmSalesRepresentative, isSuperAdmin } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
 
   const crmRole = useMemo((): ContactOwner["crmRole"] => {
@@ -243,7 +243,7 @@ const CreateContactModal = () => {
         onClear={handleOwnerClear}
         options={ownerOptions}
         noResultsText={translateText(["noOwnerFound"])}
-        readonly={isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperadmin}
+        readonly={isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin}
       />
 
       <Stack direction="row" justifyContent="flex-end" gap={1.5} mt={2}>

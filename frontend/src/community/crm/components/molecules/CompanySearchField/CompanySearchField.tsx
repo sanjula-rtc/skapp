@@ -29,6 +29,10 @@ const CompanySearchField = ({
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    setSearchTerm(value);
+  }, [value]);
+
   const filteredResults = useMemo(() => {
     return options.filter((o) =>
       o.name.toLowerCase().includes(searchTerm.toLowerCase())
