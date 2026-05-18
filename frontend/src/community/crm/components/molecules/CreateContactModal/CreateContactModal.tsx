@@ -1,4 +1,3 @@
-import { Stack } from "@mui/material";
 import {
   ButtonV2,
   CloseIcon,
@@ -185,7 +184,7 @@ const CreateContactModal = () => {
   };
 
   return (
-    <Stack gap={2}>
+    <div className="flex flex-col gap-4">
       <InputField
         inputName="name"
         label={translateText(["contactName"])}
@@ -246,7 +245,7 @@ const CreateContactModal = () => {
         readonly={isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin}
       />
 
-      <Stack direction="row" justifyContent="flex-end" gap={1.5} mt={2}>
+      <div className="flex flex-row justify-end gap-3 mt-4">
         <ButtonV2
           variant="tertiary"
           icon={<CloseIcon />}
@@ -266,8 +265,8 @@ const CreateContactModal = () => {
         >
           {translateText(["save"])}
         </ButtonV2>
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 };
 

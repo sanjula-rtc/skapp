@@ -82,7 +82,7 @@ const OwnerSearchField = ({
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-black font-medium text-sm mb-1">{label}</label>
+          <label className="subtitle1 leading-normal text-black block mb-1">{label}</label>
         )}
         <div className="h-12 rounded-lg bg-gray-100 flex items-center px-3">
           <AvatarChip
