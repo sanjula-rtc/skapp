@@ -14,6 +14,7 @@ public enum CommonMessageConstant implements MessageConstant {
 	COMMON_SUCCESS_WORK_LOCATION_CREATED("api.success.common.work-location-created"),
 	COMMON_SUCCESS_WORK_LOCATION_UPDATED("api.success.common.work-location-updated"),
 	COMMON_SUCCESS_WORK_LOCATION_DELETED("api.success.common.work-location-deleted"),
+	COMMON_SUCCESS_WORK_LOCATION_NAME_AVAILABLE("api.success.common.work-location-name-available"),
 
 	// Error message constants
 	COMMON_ERROR_ACCESS_DENIED("api.error.common.access-denied"),
@@ -132,7 +133,9 @@ public enum CommonMessageConstant implements MessageConstant {
 	COMMON_ERROR_WORK_LOCATION_NOT_FOUND("api.error.common.work-location-not-found"),
 	COMMON_ERROR_WORK_LOCATION_NAME_ALREADY_EXISTS("api.error.common.work-location-name-already-exists"),
 	COMMON_ERROR_WORK_LOCATION_NAME_REQUIRED("api.error.common.work-location-name-required"),
-	COMMON_ERROR_WORK_LOCATION_NAME_LENGTH_EXCEEDED("api.error.common.work-location-name-length-exceeded");
+	COMMON_ERROR_WORK_LOCATION_NAME_LENGTH_EXCEEDED("api.error.common.work-location-name-length-exceeded"),
+	COMMON_ERROR_WORK_LOCATION_EMPLOYEE_ASSIGNMENT_CONFLICT(
+			"api.error.common.work-location-employee-assignment-conflict");
 
 	private final String messageKey;
 

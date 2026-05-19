@@ -18,11 +18,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/work-location")
+@RequestMapping("/v1/com/work-location")
 public class WorkLocationController {
 
 	private final WorkLocationService workLocationService;
@@ -34,6 +35,36 @@ public class WorkLocationController {
 	public ResponseEntity<ResponseEntityDto> getWorkLocations(WorkLocationFilterDto workLocationFilterDto) {
 
 		ResponseEntityDto response = workLocationService.getWorkLocations(workLocationFilterDto);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Get all work locations without pagination",
+			description = "Retrieves all work locations without pagination.")
+	@PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_ATTENDANCE_ADMIN','ROLE_PEOPLE_EMPLOYEE')")
+	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseEntityDto> getAllWorkLocations() {
+
+		ResponseEntityDto response = workLocationService.getAllWorkLocations();
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Check if work location name exists",
+			description = "Returns whether a work location name already exists.")
+	@PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_ATTENDANCE_ADMIN','ROLE_PEOPLE_ADMIN')")
+	@GetMapping(value = "/name-exists", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseEntityDto> checkWorkLocationNameExists(@RequestParam String name) {
+
+		ResponseEntityDto response = workLocationService.checkWorkLocationNameExists(name);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Get a work location by ID",
+			description = "Retrieves a single work location with its employees and geo-fence details.")
+	@PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_ATTENDANCE_ADMIN','ROLE_PEOPLE_ADMIN')")
+	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseEntityDto> getWorkLocationById(@PathVariable Long id) {
+
+		ResponseEntityDto response = workLocationService.getWorkLocationById(id);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
