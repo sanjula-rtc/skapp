@@ -1,14 +1,13 @@
 import {
   ButtonV2,
   CloseIcon,
-  EastArrowIcon
+  EastArrowIcon,
+  InputField
 } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
 
-import InputField from "~community/common/components/molecules/InputField/InputField";
-import InputPhoneNumber from "~community/common/components/molecules/InputPhoneNumber/InputPhoneNumber";
 import { ToastType } from "~community/common/enums/ComponentEnums";
 import { useTranslator } from "~community/common/hooks/useTranslator";
 import useSessionData from "~community/common/hooks/useSessionData";
@@ -157,22 +156,6 @@ const CreateContactModal = () => {
     setFieldError(name, "");
   };
 
-  const handleContactNumber = async (
-    phone: ChangeEvent<HTMLInputElement>
-  ): Promise<void> => {
-    const contactNumber = phone.target.value;
-    await setFieldValue("contactNumber", contactNumber);
-    setFieldError("contactNumber", "");
-
-    if (!values.countryCode) {
-      await setFieldValue("countryCode", countryCode);
-    }
-  };
-
-  const handleCountryChange = async (selectedCountryCode: string): Promise<void> => {
-    await setFieldValue("countryCode", selectedCountryCode);
-  };
-
   const handleOwnerSelect = (owner: ContactOwner) => {
     setSelectedOwner(owner);
     setFieldValue("ownerId", owner.employeeId);
@@ -184,28 +167,27 @@ const CreateContactModal = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col h-full justify-between gap-[0.625rem]">
       <InputField
-        inputName="name"
+        name="name"
         label={translateText(["contactName"])}
-        placeHolder={translateText(["enterContactName"])}
+        placeholder={translateText(["enterContactName"])}
         value={values.name}
-        error={errors.name}
+        errorMessage={errors.name || ""}
         required
         onChange={handleChange}
-        labelStyles={{ fontWeight: 500 }}
+        fullWidth
       />
 
       <InputField
-        inputName="email"
-        inputType="email"
+        name="email"
         label={translateText(["email"])}
-        placeHolder={translateText(["enterEmail"])}
+        placeholder={translateText(["enterEmail"])}
         value={values.email}
-        error={errors.email}
+        errorMessage={errors.email || ""}
         required
         onChange={handleChange}
-        labelStyles={{ fontWeight: 500 }}
+        fullWidth
       />
 
       <CompanySearchField
@@ -222,19 +204,14 @@ const CreateContactModal = () => {
         noResultsText={translateText(["noCompanyFound"])}
       />
 
-      <div>
-        <InputPhoneNumber
-          inputName="contactNumber"
-          label={translateText(["contactNo"])}
-          placeHolder={translateText(["enterContactNo"])}
-          value={values.contactNumber}
-          countryCodeValue={values.countryCode}
-          onChange={handleContactNumber}
-          onChangeCountry={handleCountryChange}
-          labelStyles={{ fontWeight: 500}}
-          fullComponentStyle={{ mt: "0rem" }}
-        />
-      </div>
+      <InputField
+        name="contactNumber"
+        label={translateText(["contactNo"])}
+        placeholder={translateText(["enterContactNo"])}
+        value={values.contactNumber}
+        onChange={handleChange}
+        fullWidth
+      />
 
       <OwnerSearchField
         label={translateText(["contactOwner"])}
@@ -247,7 +224,7 @@ const CreateContactModal = () => {
         readonly={isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin}
       />
 
-      <div className="flex flex-row justify-end gap-3 mt-4">
+      <div className="flex flex-row justify-end py-[0.85rem] gap-[1rem]">
         <ButtonV2
           variant="tertiary"
           icon={<CloseIcon />}
