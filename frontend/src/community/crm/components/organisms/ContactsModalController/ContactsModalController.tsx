@@ -6,7 +6,7 @@ import CreateContactModal from "~community/crm/components/molecules/CreateContac
 import { useCrmStore } from "~community/crm/store/store";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
 
-const CrmContactsModalController = () => {
+const ContactsModalController = () => {
   const translateText = useTranslator("crmModule", "popupTitles");
 
   const { isAddContactModalOpen, crmModalType, setIsAddContactModalOpen, setCrmModalType } =
@@ -46,10 +46,9 @@ const CrmContactsModalController = () => {
       onClose={handleClose}
       modalHeader={getModalTitle(crmModalType)}
       backdropVariant="dark"
-      className="w-[553px] h-fit"
       content={getModalContent()}
     />
   );
 };
 
-export default CrmContactsModalController;
+export default ContactsModalController;

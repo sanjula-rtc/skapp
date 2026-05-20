@@ -3,7 +3,7 @@ import { NextPage } from "next";
 import ContentLayout from "~community/common/components/templates/ContentLayout/ContentLayout";
 import { useTranslator } from "~community/common/hooks/useTranslator";
 import { IconName } from "~community/common/types/IconTypes";
-import CrmContactsModalController from "~community/crm/components/organisms/CrmContactsModalController/CrmContactsModalController";
+import ContactsModalController from "~community/crm/components/organisms/ContactsModalController/ContactsModalController";
 import { useCrmStore } from "~community/crm/store/store";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
 
@@ -27,7 +27,7 @@ const Contacts: NextPage = () => {
       onPrimaryButtonClick={handleAddContact}
     >
       <>
-        <CrmContactsModalController />
+        <ContactsModalController />
       </>
     </ContentLayout>
   );
