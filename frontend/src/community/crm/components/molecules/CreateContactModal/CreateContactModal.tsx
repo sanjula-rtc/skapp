@@ -1,7 +1,6 @@
 import {
   ButtonV2,
   CloseIcon,
-  EastArrowIcon,
   InputField
 } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
@@ -170,8 +169,8 @@ const CreateContactModal = () => {
     <div className="flex flex-col h-full justify-between gap-[0.625rem]">
       <InputField
         name="name"
-        label={translateText(["contactName"])}
-        placeholder={translateText(["enterContactName"])}
+        label={translateText(["labels", "name"])}
+        placeholder={translateText(["placeholders", "name"])}
         value={values.name}
         errorMessage={errors.name || ""}
         required
@@ -181,8 +180,8 @@ const CreateContactModal = () => {
 
       <InputField
         name="email"
-        label={translateText(["email"])}
-        placeholder={translateText(["enterEmail"])}
+        label={translateText(["labels", "email"])}
+        placeholder={translateText(["placeholders", "email"])}
         value={values.email}
         errorMessage={errors.email || ""}
         required
@@ -191,8 +190,8 @@ const CreateContactModal = () => {
       />
 
       <CompanySearchField
-        label={translateText(["company"])}
-        placeholder={translateText(["enterCompany"])}
+        label={translateText(["labels", "company"])}
+        placeholder={translateText(["placeholders", "company"])}
         value={values.company}
         onChange={(name, id) => {
           setFieldValue("company", name);
@@ -200,15 +199,16 @@ const CreateContactModal = () => {
         }}
         options={companyOptions}
         onAddCompany={() => {}}
-        addCompanyLabel={translateText(["addCompany"])}
+        addCompanyLabel={translateText(["buttons", "addCompany"])}
         noResultsText={translateText(["noCompanyFound"])}
       />
 
       <InputField
         name="contactNumber"
-        label={translateText(["contactNo"])}
-        placeholder={translateText(["enterContactNo"])}
+        label={translateText(["labels", "contactNumber"])}
+        placeholder={translateText(["placeholders", "contactNumber"])}
         value={values.contactNumber}
+        errorMessage={errors.contactNumber || ""}
         onChange={handleChange}
         fullWidth
       />
