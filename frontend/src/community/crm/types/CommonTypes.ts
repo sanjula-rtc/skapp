@@ -31,6 +31,22 @@ export interface ContactOwner {
   crmRole: "CRM_ADMIN" | "CRM_SALES_MANAGER" | "CRM_SALES_REPRESENTATIVE";
 }
 
+export interface CrmCompanyAddFormTypes {
+  name: string;
+  industry: string | null;
+  website: string | null;
+  address: string | null;
+  contactNumber: string | null;
+}
+
+export interface CrmCompanyCreatePayload {
+  name: string;
+  industry: string | null;
+  website: string | null;
+  address: string | null;
+  contactNumber: string | null;
+}
+
 export interface CrmOwnerType {
   employeeId: number;
   firstName: string;
