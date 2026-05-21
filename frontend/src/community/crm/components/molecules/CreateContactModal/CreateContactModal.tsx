@@ -1,11 +1,8 @@
-import {
-  ButtonV2,
-  CloseIcon,
-  InputField
-} from "@rootcodelabs/skapp-ui";
+import { ButtonV2, InputField } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
+import CloseIcon from "~community/common/assets/Icons/CloseIcon";
 import { characterLengths } from "~community/common/constants/stringConstants";
 import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
 
@@ -111,27 +108,6 @@ const CreateContactModal = () => {
       ),
   });
 
-  const { mutate, isPending } = useCreateContact({
-    onSuccess: () => {
-      setIsAddContactModalOpen(false);
-      setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
-      setToastMessage({
-        open: true,
-        toastType: ToastType.SUCCESS,
-        title: translateText(["toasts", "successTitle"]),
-        description: translateText(["toasts", "successDescription"])
-      });
-    },
-    onError: (message: string) => {
-      setToastMessage({
-        open: true,
-        toastType: ToastType.ERROR,
-        title: translateText(["toasts", "errorTitle"]),
-        description: message
-      });
-    }
-  });
-
   const formik = useFormik<CreateContactFormValues>({
     initialValues: {
       name: "",
@@ -144,7 +120,7 @@ const CreateContactModal = () => {
     },
     validationSchema,
     validateOnChange: false,
-    validateOnBlur: true,
+    validateOnBlur: false,
     onSubmit: (values) => {
       mutate({
         name: values.name,
@@ -166,15 +142,34 @@ const CreateContactModal = () => {
     }
   }, [defaultOwner]);
 
-  const { values, errors, setFieldValue, setFieldError, handleSubmit } = formik;
+  const { values, errors, handleChange, isSubmitting, setFieldValue, setSubmitting, submitForm } = formik;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFieldValue(name, value);
-    // Clear error only for the field being changed
-    if (errors[name as keyof typeof errors]) {
-      setFieldError(name, undefined);
+  const { mutate, isPending } = useCreateContact({
+    onSuccess: () => {
+      setSubmitting(false);
+      setIsAddContactModalOpen(false);
+      setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
+      setToastMessage({
+        open: true,
+        toastType: ToastType.SUCCESS,
+        title: translateText(["toasts", "successTitle"]),
+        description: translateText(["toasts", "successDescription"])
+      });
+    },
+    onError: (message: string) => {
+      setSubmitting(false);
+      setToastMessage({
+        open: true,
+        toastType: ToastType.ERROR,
+        title: translateText(["toasts", "errorTitle"]),
+        description: message
+      });
     }
+  });
+
+  const handleCloseModal = () => {
+    setIsAddContactModalOpen(false);
+    setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
   };
 
   const handleOwnerSelect = (owner: ContactOwner) => {
@@ -260,7 +255,8 @@ const CreateContactModal = () => {
           icon={<CloseIcon />}
           iconPosition="end"
           type="button"
-          onClick={() => { setIsAddContactModalOpen(false); setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL); }}
+          disabled={isSubmitting}
+          onClick={handleCloseModal}
           aria-label={translateText(["ariaLabels", "cancel"])}
         >
           {translateText(["buttons", "cancel"])}
@@ -268,8 +264,8 @@ const CreateContactModal = () => {
         <ButtonV2
           variant="primary"
           type="button"
-          disabled={isPending}
-          onClick={() => handleSubmit()}
+          disabled={isSubmitting || isPending}
+          onClick={() => submitForm()}
           aria-label={translateText(["ariaLabels", "save"])}
         >
           {translateText(["buttons", "save"])}
