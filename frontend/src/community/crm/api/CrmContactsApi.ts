@@ -2,8 +2,8 @@ import { type UseQueryResult, useMutation, useQuery, useQueryClient } from "@tan
 import { AxiosError } from "axios";
 
 import authFetch from "~community/common/utils/axiosInterceptor";
-import { crmEndpoints } from "~community/crm/api/utils/ApiEndpoints";
-import { crmQueryKeys } from "~community/crm/api/utils/QueryKeys";
+import { contactEndpoints } from "~community/crm/api/utils/ApiEndpoints";
+import { contactQueryKeys } from "~community/crm/api/utils/QueryKeys";
 import {
   CreateContactPayload,
   CrmCompaniesResponseType,
@@ -28,9 +28,9 @@ export const useGetCrmCompanies = (
   const { page = 0, size = 100, searchKeyword } = params;
 
   return useQuery({
-    queryKey: crmQueryKeys.CRM_COMPANIES(params),
+    queryKey: contactQueryKeys.CRM_COMPANIES(params),
     queryFn: () =>
-      authFetch.get(crmEndpoints.GET_COMPANIES, {
+      authFetch.get(contactEndpoints.GET_COMPANIES, {
         params: {
           page,
           size,
@@ -47,9 +47,9 @@ export const useGetCrmOwners = (
   const { page = 0, size = 100, searchKeyword } = params;
 
   return useQuery({
-    queryKey: crmQueryKeys.CRM_OWNERS(params),
+    queryKey: contactQueryKeys.CRM_OWNERS(params),
     queryFn: () =>
-      authFetch.get(crmEndpoints.GET_OWNERS, {
+      authFetch.get(contactEndpoints.GET_OWNERS, {
         params: {
           page,
           size,
@@ -71,7 +71,7 @@ export const useCreateContact = ({
 
   return useMutation({
     mutationFn: (payload: CreateContactPayload) =>
-      authFetch.post(crmEndpoints.CREATE_CONTACT, payload),
+      authFetch.post(contactEndpoints.CREATE_CONTACT, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-contacts"] });
       onSuccess();

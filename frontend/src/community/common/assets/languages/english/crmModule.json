@@ -7,26 +7,44 @@
     "detailsTitle": "Contact Details",
     "createContactModal": {
       "title": "Create contact",
-      "contactName": "Contact name",
-      "enterContactName": "Enter contact name",
-      "email": "Email",
-      "enterEmail": "Enter email",
-      "company": "Company",
-      "enterCompany": "Enter company",
+      "labels": {
+        "contactName": "Contact name",
+        "email": "Email",
+        "company": "Company",
+        "contactNo": "Contact no.",
+        "contactOwner": "Contact owner"
+      },
+      "placeholders": {
+        "contactName": "Enter contact name",
+        "email": "Enter email",
+        "company": "Select company",
+        "contactNo": "Enter contact no.",
+        "contactOwner": "Select contact owner"
+      },
+      "buttons": {
+        "addCompany": "Add company",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "ariaLabels": {
+        "contactName": "Contact Name",
+        "email": "Email",
+        "company": "Company",
+        "contactNo": "Contact Number",
+        "contactOwner": "Contact Owner",
+        "save": "Save Contact",
+        "cancel": "Cancel Create Contact"
+      },
+      "validations": {
+        "contactNameRequired": "Contact name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address"
+      },
       "searchCompany": "Search companies...",
       "noCompanyFound": "No company found",
-      "addCompany": "Add company",
-      "contactNo": "Contact no.",
-      "enterContactNo": "Enter contact no.",
-      "contactOwner": "Contact owner",
       "selectOwner": "Select owner",
       "searchOwner": "Search owners...",
       "noOwnerFound": "No owner found",
-      "cancel": "Cancel",
-      "save": "Save",
-      "contactNameRequired": "Contact name is required",
-      "emailRequired": "Email is required",
-      "emailInvalid": "Enter a valid email address",
       "createContactSuccess": "Contact has been created successfully.",
       "createContactSuccessTitle": "Contact created",
       "createContactError": "Failed to create contact. Please try again.",

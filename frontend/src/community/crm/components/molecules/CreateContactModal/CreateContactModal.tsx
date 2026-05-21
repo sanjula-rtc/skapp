@@ -6,6 +6,8 @@ import {
 import { useFormik } from "formik";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
+import { characterLengths } from "~community/common/constants/stringConstants";
+import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
 
 import { ToastType } from "~community/common/enums/ComponentEnums";
 import { useTranslator } from "~community/common/hooks/useTranslator";
@@ -86,10 +88,27 @@ const CreateContactModal = () => {
   }));
 
   const validationSchema = Yup.object({
-    name: Yup.string().required(translateText(["contactNameRequired"])),
+    name: Yup.string().required(translateText(["validations", "contactNameRequired"])),
     email: Yup.string()
-      .required(translateText(["emailRequired"]))
-      .email(translateText(["emailInvalid"]))
+      .required(translateText(["validations", "emailRequired"]))
+      .email(translateText(["validations", "emailInvalid"])),
+    contactNumber: Yup.string()
+      .nullable()
+      .optional()
+      .test(
+        "valid-contact-number",
+        translateText(["validations", "contactNumber"]),
+        function (inputContactNumber) {
+          if (!inputContactNumber || inputContactNumber === "") {
+            return true;
+          }
+          return isValidPhoneNumber().test(inputContactNumber);
+        }
+      )
+      .max(
+        characterLengths.PHONE_NUMBER_LENGTH_MAX,
+        translateText(["validations", "contactNumberLength"])
+      ),
   });
 
   const { mutate, isPending } = useCreateContact({
@@ -99,15 +118,15 @@ const CreateContactModal = () => {
       setToastMessage({
         open: true,
         toastType: ToastType.SUCCESS,
-        title: translateText(["createContactSuccessTitle"]),
-        description: translateText(["createContactSuccess"])
+        title: translateText(["toasts", "successTitle"]),
+        description: translateText(["toasts", "successDescription"])
       });
     },
     onError: (message: string) => {
       setToastMessage({
         open: true,
         toastType: ToastType.ERROR,
-        title: translateText(["createContactErrorTitle"]),
+        title: translateText(["toasts", "errorTitle"]),
         description: message
       });
     }
@@ -152,7 +171,10 @@ const CreateContactModal = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFieldValue(name, value);
-    setFieldError(name, "");
+    // Clear error only for the field being changed
+    if (errors[name as keyof typeof errors]) {
+      setFieldError(name, undefined);
+    }
   };
 
   const handleOwnerSelect = (owner: ContactOwner) => {
@@ -169,12 +191,14 @@ const CreateContactModal = () => {
     <div className="flex flex-col h-full justify-between gap-[0.625rem]">
       <InputField
         name="name"
-        label={translateText(["labels", "name"])}
-        placeholder={translateText(["placeholders", "name"])}
+        label={translateText(["labels", "contactName"])}
+        placeholder={translateText(["placeholders", "contactName"])}
         value={values.name}
         errorMessage={errors.name || ""}
+        state={errors.name ? "error" : "default"}
         required
         onChange={handleChange}
+        aria-label={translateText(["ariaLabels", "contactName"])}
         fullWidth
       />
 
@@ -184,8 +208,10 @@ const CreateContactModal = () => {
         placeholder={translateText(["placeholders", "email"])}
         value={values.email}
         errorMessage={errors.email || ""}
+        state={errors.email ? "error" : "default"}
         required
         onChange={handleChange}
+        aria-label={translateText(["ariaLabels", "email"])}
         fullWidth
       />
 
@@ -200,27 +226,31 @@ const CreateContactModal = () => {
         options={companyOptions}
         onAddCompany={() => {}}
         addCompanyLabel={translateText(["buttons", "addCompany"])}
-        noResultsText={translateText(["noCompanyFound"])}
+        noResultsText={translateText(["noResults", "company"])}
+        aria-label={translateText(["ariaLabels", "company"])}
       />
 
       <InputField
         name="contactNumber"
-        label={translateText(["labels", "contactNumber"])}
-        placeholder={translateText(["placeholders", "contactNumber"])}
+        label={translateText(["labels", "contactNo"])}
+        placeholder={translateText(["placeholders", "contactNo"])}
         value={values.contactNumber}
         errorMessage={errors.contactNumber || ""}
+        state={errors.contactNumber ? "error" : "default"}
         onChange={handleChange}
+        aria-label={translateText(["ariaLabels", "contactNo"])}
         fullWidth
       />
 
       <OwnerSearchField
-        label={translateText(["contactOwner"])}
-        placeholder={translateText(["searchOwner"])}
+        label={translateText(["labels", "contactOwner"])}
+        placeholder={translateText(["placeholders", "contactOwner"])}
         selectedOwner={selectedOwner}
         onSelect={handleOwnerSelect}
         onClear={handleOwnerClear}
         options={ownerOptions}
-        noResultsText={translateText(["noOwnerFound"])}
+        noResultsText={translateText(["noResults", "owner"])}
+        aria-label={translateText(["ariaLabels", "contactOwner"])}
         readonly={isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin}
       />
 
@@ -231,16 +261,18 @@ const CreateContactModal = () => {
           iconPosition="end"
           type="button"
           onClick={() => { setIsAddContactModalOpen(false); setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL); }}
+          aria-label={translateText(["ariaLabels", "cancel"])}
         >
-          {translateText(["cancel"])}
+          {translateText(["buttons", "cancel"])}
         </ButtonV2>
         <ButtonV2
           variant="primary"
           type="button"
           disabled={isPending}
           onClick={() => handleSubmit()}
+          aria-label={translateText(["ariaLabels", "save"])}
         >
-          {translateText(["save"])}
+          {translateText(["buttons", "save"])}
         </ButtonV2>
       </div>
     </div>

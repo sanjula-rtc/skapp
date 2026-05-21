@@ -1,6 +1,5 @@
-export const crmEndpoints = {
+export const contactEndpoints = {
   CREATE_CONTACT: `contact`,
-
   GET_OWNERS: `contact/owners`,
   GET_COMPANIES: `company/lookup`
 }
