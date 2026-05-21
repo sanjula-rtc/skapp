@@ -34,9 +34,10 @@ const CompanySearchField = ({
   }, [value]);
 
   const filteredResults = useMemo(() => {
-    return options.filter((o) =>
+    const filtered = options.filter((o) =>
       o.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    return searchTerm ? filtered : filtered.slice(0, 4);
   }, [options, searchTerm]);
 
   // Close dropdown when clicking outside
