@@ -1,5 +1,4 @@
 import { type UseQueryResult, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
 import authFetch from "~community/common/utils/axiosInterceptor";
 import { contactEndpoints } from "~community/crm/api/utils/ApiEndpoints";
@@ -29,15 +28,16 @@ export const useGetCrmCompanies = (
 
   return useQuery({
     queryKey: contactQueryKeys.CRM_COMPANIES(params),
-    queryFn: () =>
-      authFetch.get(contactEndpoints.GET_COMPANIES, {
+    queryFn: async () => {
+      const response = await authFetch.get(contactEndpoints.GET_COMPANIES, {
         params: {
           page,
           size,
           ...(searchKeyword ? { searchKeyword } : {})
         }
-      }),
-    select: (data) => data?.data?.results?.[0] as CrmCompaniesResponseType
+      });
+      return response?.data?.results?.[0] as CrmCompaniesResponseType;
+    }
   });
 };
 
@@ -48,40 +48,34 @@ export const useGetCrmOwners = (
 
   return useQuery({
     queryKey: contactQueryKeys.CRM_OWNERS(params),
-    queryFn: () =>
-      authFetch.get(contactEndpoints.GET_OWNERS, {
+    queryFn: async () => {
+      const response = await authFetch.get(contactEndpoints.GET_OWNERS, {
         params: {
           page,
           size,
           ...(searchKeyword ? { searchKeyword } : {})
         }
-      }),
-    select: (data) => data?.data?.results?.[0] as CrmOwnersResponseType
+      });
+      return response?.data?.results?.[0] as CrmOwnersResponseType;
+    }
   });
 };
 
-export const useCreateContact = ({
-  onSuccess,
-  onError
-}: {
-  onSuccess: () => void;
-  onError: (message: string) => void;
-}) => {
+export const useCreateContact = (
+  onSuccess: () => void,
+  onError: () => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateContactPayload) =>
-      authFetch.post(contactEndpoints.CREATE_CONTACT, payload),
+    mutationFn: async (payload: CreateContactPayload) => {
+      const response = await authFetch.post(contactEndpoints.CREATE_CONTACT, payload);
+      return response?.data?.results?.[0];
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crm-contacts"] });
+      queryClient.invalidateQueries({ queryKey: contactQueryKeys.GET_CONTACTS });
       onSuccess();
     },
-    onError: (error: AxiosError<{ message?: string; results?: Array<{ message: string }> }>) => {
-      const message =
-        error?.response?.data?.message ??
-        error?.response?.data?.results?.[0]?.message ??
-        "Failed to create contact. Please try again.";
-      onError(message);
-    }
+    onError
   });
 };

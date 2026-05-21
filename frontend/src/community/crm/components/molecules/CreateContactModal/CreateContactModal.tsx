@@ -2,10 +2,9 @@ import { ButtonV2, InputField } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
+
 import CloseIcon from "~community/common/assets/Icons/CloseIcon";
 import { characterLengths } from "~community/common/constants/stringConstants";
-import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
-
 import { ToastType } from "~community/common/enums/ComponentEnums";
 import { useTranslator } from "~community/common/hooks/useTranslator";
 import useSessionData from "~community/common/hooks/useSessionData";
@@ -20,8 +19,9 @@ import {
 import CompanySearchField from "~community/crm/components/molecules/CompanySearchField/CompanySearchField";
 import OwnerSearchField from "~community/crm/components/molecules/OwnerSearchField/OwnerSearchField";
 import { useCrmStore } from "~community/crm/store/store";
-import { ContactOwner } from "~community/crm/types/CommonTypes";
+import { ContactOwner, CreateContactPayload } from "~community/crm/types/CommonTypes";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
+import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
 
 interface CreateContactFormValues {
   name: string;
@@ -34,16 +34,16 @@ interface CreateContactFormValues {
 }
 
 const CreateContactModal = () => {
+  const { setToastMessage } = useToast();
+
   const translateText = useTranslator(
     "crmModule",
     "contacts",
     "createContactModal"
   );
+
   const countryCode = useGetDefaultCountryCode();
-  const { setToastMessage } = useToast();
-
   const { setIsAddContactModalOpen, setCrmModalType } = useCrmStore((state) => state);
-
   const { isCrmAdmin, isCrmSalesManager, isCrmSalesRepresentative, isSuperAdmin } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
 
@@ -67,7 +67,7 @@ const CreateContactModal = () => {
 
   const [selectedOwner, setSelectedOwner] = useState<ContactOwner | null>(null);
 
-  const { data: companiesData }= useGetCrmCompanies({ page: 0, size: 100 });
+  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
   const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 });
 
   const companyOptions = (companiesData?.items ?? []).map((c) => ({
@@ -83,6 +83,48 @@ const CreateContactModal = () => {
     authPic: o.authPic,
     crmRole: o.crmRole
   }));
+
+  const handleSuccess = () => {
+    setSubmitting(false);
+    handleCloseModal();
+    setToastMessage({
+      open: true,
+      toastType: ToastType.SUCCESS,
+      title: translateText(["toasts", "successTitle"]),
+      description: translateText(["toasts", "successDescription"])
+    });
+  };
+
+  const handleError = () => {
+    setSubmitting(false);
+    setToastMessage({
+      open: true,
+      toastType: ToastType.ERROR,
+      title: translateText(["toasts", "errorTitle"]),
+      description: translateText(["toasts", "errorDescription"])
+    });
+  };
+
+  const handleCloseModal = (): void => {
+    setIsAddContactModalOpen(false);
+    setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
+  };
+
+  const { mutate: createContact, isPending } = useCreateContact(handleSuccess, handleError);
+
+  const submitContact = (values: CreateContactFormValues) => {
+    const payload: CreateContactPayload = {
+      name: values.name.trim(),
+      email: values.email.trim(),
+      companyId: values.companyId ?? undefined,
+      contactNumber: values.contactNumber
+        ? `+${values.countryCode}${values.contactNumber}`
+        : undefined,
+      ownerId: values.ownerId ?? undefined
+    };
+
+    createContact(payload);
+  };
 
   const validationSchema = Yup.object({
     name: Yup.string().required(translateText(["validations", "contactNameRequired"])),
@@ -105,7 +147,7 @@ const CreateContactModal = () => {
       .max(
         characterLengths.PHONE_NUMBER_LENGTH_MAX,
         translateText(["validations", "contactNumberLength"])
-      ),
+      )
   });
 
   const formik = useFormik<CreateContactFormValues>({
@@ -118,59 +160,29 @@ const CreateContactModal = () => {
       countryCode,
       ownerId: defaultOwner?.employeeId ?? null
     },
+    onSubmit: submitContact,
     validationSchema,
     validateOnChange: false,
     validateOnBlur: false,
-    onSubmit: (values) => {
-      mutate({
-        name: values.name,
-        email: values.email,
-        companyId: values.companyId || undefined,
-        contactNumber:
-          values.contactNumber
-            ? `+${values.countryCode}${values.contactNumber}`
-            : undefined,
-        ownerId: values.ownerId || undefined
-      });
-    }
+    enableReinitialize: true
   });
+
+  const {
+    values,
+    errors,
+    handleChange,
+    isSubmitting,
+    setFieldValue,
+    setSubmitting,
+    submitForm
+  } = formik;
 
   useEffect(() => {
     if (defaultOwner && !selectedOwner) {
       setSelectedOwner(defaultOwner);
-      formik.setFieldValue("ownerId", defaultOwner.employeeId);
+      setFieldValue("ownerId", defaultOwner.employeeId);
     }
   }, [defaultOwner]);
-
-  const { values, errors, handleChange, isSubmitting, setFieldValue, setSubmitting, submitForm } = formik;
-
-  const { mutate, isPending } = useCreateContact({
-    onSuccess: () => {
-      setSubmitting(false);
-      setIsAddContactModalOpen(false);
-      setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
-      setToastMessage({
-        open: true,
-        toastType: ToastType.SUCCESS,
-        title: translateText(["toasts", "successTitle"]),
-        description: translateText(["toasts", "successDescription"])
-      });
-    },
-    onError: (message: string) => {
-      setSubmitting(false);
-      setToastMessage({
-        open: true,
-        toastType: ToastType.ERROR,
-        title: translateText(["toasts", "errorTitle"]),
-        description: message
-      });
-    }
-  });
-
-  const handleCloseModal = () => {
-    setIsAddContactModalOpen(false);
-    setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
-  };
 
   const handleOwnerSelect = (owner: ContactOwner) => {
     setSelectedOwner(owner);
@@ -252,11 +264,11 @@ const CreateContactModal = () => {
       <div className="flex flex-row justify-end py-[0.85rem] gap-[1rem]">
         <ButtonV2
           variant="tertiary"
-          icon={<CloseIcon />}
-          iconPosition="end"
           type="button"
           disabled={isSubmitting}
           onClick={handleCloseModal}
+          icon={<CloseIcon />}
+          iconPosition="end"
           aria-label={translateText(["ariaLabels", "cancel"])}
         >
           {translateText(["buttons", "cancel"])}
@@ -264,8 +276,8 @@ const CreateContactModal = () => {
         <ButtonV2
           variant="primary"
           type="button"
-          disabled={isSubmitting || isPending}
           onClick={() => submitForm()}
+          disabled={isSubmitting || isPending}
           aria-label={translateText(["ariaLabels", "save"])}
         >
           {translateText(["buttons", "save"])}

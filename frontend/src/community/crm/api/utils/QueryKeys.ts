@@ -1,4 +1,5 @@
 export const contactQueryKeys = {
+  GET_CONTACTS: ["crm-contacts"],
   CRM_OWNERS: (params?: object) =>
     ["crm-owners", params].filter((val) => val !== undefined),
   CRM_COMPANIES: (params?: object) =>

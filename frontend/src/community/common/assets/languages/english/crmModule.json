@@ -38,17 +38,20 @@
       "validations": {
         "contactNameRequired": "Contact name is required",
         "emailRequired": "Email is required",
-        "emailInvalid": "Enter a valid email address"
+        "emailInvalid": "Enter a valid email address",
+        "contactNumber": "Enter a valid contact number",
+        "contactNumberLength": "Contact number must be less than 15 digits"
       },
-      "searchCompany": "Search companies...",
-      "noCompanyFound": "No company found",
-      "selectOwner": "Select owner",
-      "searchOwner": "Search owners...",
-      "noOwnerFound": "No owner found",
-      "createContactSuccess": "Contact has been created successfully.",
-      "createContactSuccessTitle": "Contact created",
-      "createContactError": "Failed to create contact. Please try again.",
-      "createContactErrorTitle": "Error"
+      "noResults": {
+        "company": "No company found",
+        "owner": "No owner found"
+      },
+      "toasts": {
+        "successTitle": "Contact created",
+        "successDescription": "Contact has been created successfully.",
+        "errorTitle": "Failed to create contact",
+        "errorDescription": "Please try again or contact support"
+      }
     }
   },
   "companies": {
