@@ -91,7 +91,7 @@ const CreateContactModal = () => {
   const [ownerSearch, setOwnerSearch] = useState("");
   const ownerSectionRef = useRef<HTMLDivElement>(null);
 
-  const isOwnerReadonly = !isCrmSalesManager || !isSuperAdmin;
+  const isOwnerReadonly = !isCrmSalesManager
 
   const defaultOwner = useMemo<ContactOwnerLookup | null>(() => {
     if (!me?.employeeId) return null;
