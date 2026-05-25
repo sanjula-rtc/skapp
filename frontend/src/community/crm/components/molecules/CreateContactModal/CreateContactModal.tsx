@@ -23,7 +23,6 @@ import {
 } from "~community/crm/api/CrmContactsApi";
 import { useCrmStore } from "~community/crm/store/store";
 import {
-  ContactOwner,
   ContactOwnerLookup,
   CreateContactPayload
 } from "~community/crm/types/CommonTypes";
@@ -41,7 +40,6 @@ interface CreateContactFormValues {
   company: string;
   companyId: number | null;
   contactNumber: string;
-  countryCode: string;
   ownerId: number | null;
 }
 
@@ -79,8 +77,7 @@ const CreateContactModal = () => {
     (state) => state
   );
   const {
-    isCrmSalesManager,
-    isSuperAdmin
+    isCrmSalesManager
   } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
   const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
@@ -151,7 +148,7 @@ const CreateContactModal = () => {
       email: values.email.trim(),
       companyId: values.companyId ?? undefined,
       contactNumber: values.contactNumber
-        ? `+${values.countryCode}${values.contactNumber}`
+        ? `+${values.contactNumber}`
         : undefined,
       ownerId: values.ownerId ?? undefined
     };
@@ -186,7 +183,6 @@ const CreateContactModal = () => {
       company: "",
       companyId: null,
       contactNumber: "",
-      countryCode,
       ownerId: defaultOwner?.employeeId ?? null
     },
     onSubmit: submitContact,
@@ -230,7 +226,7 @@ const CreateContactModal = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [selectedOwner, previousOwner]);
 
-  const handleOwnerSelect = (owner: ContactOwner) => {
+  const handleOwnerSelect = (owner: ContactOwnerLookup) => {
     setPreviousOwner(null);
     setSelectedOwner(owner);
     setFieldValue("ownerId", owner.employeeId);
