@@ -55,6 +55,18 @@ const toAvatarProps = (owner: ContactOwnerLookup) => ({
   size: "sm" as const
 });
 
+const toOwnerLookup = (source: {
+  employeeId: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  authPic?: string | null;
+}): ContactOwnerLookup => ({
+  employeeId: source.employeeId,
+  firstName: source.firstName ?? "",
+  lastName: source.lastName ?? "",
+  authPic: source.authPic ?? null
+});
+
 const CreateContactModal = () => {
   const { setToastMessage } = useToast();
   const translateText = useTranslator(
@@ -83,12 +95,12 @@ const CreateContactModal = () => {
 
   const defaultOwner = useMemo<ContactOwnerLookup | null>(() => {
     if (!me?.employeeId) return null;
-    return {
+    return toOwnerLookup({
       employeeId: me.employeeId as number,
-      firstName: me.firstName ?? "",
-      lastName: me.lastName ?? "",
-      authPic: (me.authPic as string | null) ?? null
-    };
+      firstName: me.firstName,
+      lastName: me.lastName,
+      authPic: me.authPic as string | null
+    });
   }, [me]);
 
   const companyOptions = useMemo(
@@ -98,13 +110,7 @@ const CreateContactModal = () => {
   );
 
   const ownerOptions = useMemo<ContactOwnerLookup[]>(
-    () =>
-      (ownersData?.items ?? []).map((o) => ({
-        employeeId: o.employeeId,
-        firstName: o.firstName,
-        lastName: o.lastName,
-        authPic: o.authPic
-      })),
+    () => (ownersData?.items ?? []).map(toOwnerLookup),
     [ownersData]
   );
 
