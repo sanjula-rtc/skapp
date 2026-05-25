@@ -24,6 +24,7 @@ import {
 import { useCrmStore } from "~community/crm/store/store";
 import {
   ContactOwner,
+  ContactOwnerLookup,
   CreateContactPayload
 } from "~community/crm/types/CommonTypes";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
@@ -44,10 +45,10 @@ interface CreateContactFormValues {
   ownerId: number | null;
 }
 
-const getFullName = (owner: ContactOwner): string =>
+const getFullName = (owner: ContactOwnerLookup): string =>
   [owner.firstName, owner.lastName].filter(Boolean).join(" ");
 
-const toAvatarProps = (owner: ContactOwner) => ({
+const toAvatarProps = (owner: ContactOwnerLookup) => ({
   src: owner.authPic ?? undefined,
   firstName: owner.firstName,
   lastName: owner.lastName ?? "",
@@ -66,40 +67,29 @@ const CreateContactModal = () => {
     (state) => state
   );
   const {
-    isCrmAdmin,
     isCrmSalesManager,
-    isCrmSalesRepresentative,
     isSuperAdmin
   } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
   const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
   const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 });
 
-  const [selectedOwner, setSelectedOwner] = useState<ContactOwner | null>(null);
-  const [previousOwner, setPreviousOwner] = useState<ContactOwner | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<ContactOwnerLookup | null>(null);
+  const [previousOwner, setPreviousOwner] = useState<ContactOwnerLookup | null>(null);
   const [ownerSearch, setOwnerSearch] = useState("");
   const ownerSectionRef = useRef<HTMLDivElement>(null);
 
-  const isOwnerReadonly =
-    isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin;
+  const isOwnerReadonly = !isCrmSalesManager || !isSuperAdmin;
 
-  const crmRole = useMemo((): ContactOwner["crmRole"] => {
-    if (isCrmAdmin) return "CRM_ADMIN";
-    if (isCrmSalesManager) return "CRM_SALES_MANAGER";
-    return "CRM_SALES_REPRESENTATIVE";
-  }, [isCrmAdmin, isCrmSalesManager]);
-
-  const defaultOwner = useMemo<ContactOwner | null>(() => {
+  const defaultOwner = useMemo<ContactOwnerLookup | null>(() => {
     if (!me?.employeeId) return null;
     return {
       employeeId: me.employeeId as number,
       firstName: me.firstName ?? "",
       lastName: me.lastName ?? "",
-      email: me.email ?? "",
-      authPic: (me.authPic as string | null) ?? null,
-      crmRole
+      authPic: (me.authPic as string | null) ?? null
     };
-  }, [me, crmRole]);
+  }, [me]);
 
   const companyOptions = useMemo(
     () =>
@@ -107,15 +97,13 @@ const CreateContactModal = () => {
     [companiesData]
   );
 
-  const ownerOptions = useMemo<ContactOwner[]>(
+  const ownerOptions = useMemo<ContactOwnerLookup[]>(
     () =>
       (ownersData?.items ?? []).map((o) => ({
         employeeId: o.employeeId,
         firstName: o.firstName,
         lastName: o.lastName,
-        email: o.email,
-        authPic: o.authPic,
-        crmRole: o.crmRole
+        authPic: o.authPic
       })),
     [ownersData]
   );
@@ -212,7 +200,6 @@ const CreateContactModal = () => {
     submitForm
   } = formik;
 
-  // Pre-select the current user as the default owner once available.
   useEffect(() => {
     if (defaultOwner && !selectedOwner) {
       setSelectedOwner(defaultOwner);
@@ -220,8 +207,6 @@ const CreateContactModal = () => {
     }
   }, [defaultOwner]);
 
-  // If the user cleared the owner chip and then clicks outside without choosing
-  // a new one, restore the previous selection.
   useEffect(() => {
     if (selectedOwner || !previousOwner) return;
 
@@ -274,7 +259,7 @@ const CreateContactModal = () => {
       {
         id: ADD_COMPANY_ID,
         content: (
-          <div className="flex items-center justify-between -mx-4 -my-2 px-4 py-3 border-t border-secondary-accent bg-primary/10 hover:bg-primary/15">
+          <div className="flex items-center justify-between -mx-4 -my-2 px-4 py-3 border-t border-secondary-accent bg-[#DBEAFE] text-[#2A61A0]">
             <span className="body2 font-medium text-primary truncate">
               {translateText(["buttons", "addCompany"])}
             </span>

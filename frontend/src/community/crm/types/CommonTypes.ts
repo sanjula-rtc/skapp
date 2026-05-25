@@ -30,6 +30,8 @@ export interface ContactOwner {
   authPic: string | null;
 }
 
+export type ContactOwnerLookup = Omit<ContactOwner, "email">;
+
 export interface CrmCompanyMetricsType {
   id: number;
   name: string;
