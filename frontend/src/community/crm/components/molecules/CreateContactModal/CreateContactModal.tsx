@@ -1,36 +1,38 @@
 import {
   AvatarChip,
   ButtonV2,
-  CloseIcon as SkappCloseIcon,
+  CloseIcon,
   InputField,
+  PlusIcon,
   SearchableDropdown
 } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import * as Yup from "yup";
 
-import CloseIcon from "~community/common/assets/Icons/CloseIcon";
-import PlusIcon from "~community/common/assets/Icons/PlusIcon";
 import { characterLengths } from "~community/common/constants/stringConstants";
 import { ToastType } from "~community/common/enums/ComponentEnums";
-import { useTranslator } from "~community/common/hooks/useTranslator";
 import useSessionData from "~community/common/hooks/useSessionData";
+import { useTranslator } from "~community/common/hooks/useTranslator";
 import { useToast } from "~community/common/providers/ToastProvider";
-import { useGetUserPersonalDetails } from "~community/people/api/PeopleApi";
-import useGetDefaultCountryCode from "~community/people/hooks/useGetDefaultCountryCode";
+import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
 import {
   useCreateContact,
   useGetCrmCompanies,
   useGetCrmOwners
 } from "~community/crm/api/CrmContactsApi";
 import { useCrmStore } from "~community/crm/store/store";
-import { ContactOwner, CreateContactPayload } from "~community/crm/types/CommonTypes";
+import {
+  ContactOwner,
+  CreateContactPayload
+} from "~community/crm/types/CommonTypes";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
-import { isValidPhoneNumber } from "~community/common/regex/regexPatterns";
-
-type DropdownItem = { id: string; content: ReactNode };
+import { useGetUserPersonalDetails } from "~community/people/api/PeopleApi";
+import useGetDefaultCountryCode from "~community/people/hooks/useGetDefaultCountryCode";
 
 const ADD_COMPANY_ID = "__add_company__";
+
+type DropdownItem = { id: string; content: ReactNode };
 
 interface CreateContactFormValues {
   name: string;
@@ -42,22 +44,44 @@ interface CreateContactFormValues {
   ownerId: number | null;
 }
 
-const getFullName = (owner: ContactOwner) =>
+const getFullName = (owner: ContactOwner): string =>
   [owner.firstName, owner.lastName].filter(Boolean).join(" ");
+
+const toAvatarProps = (owner: ContactOwner) => ({
+  src: owner.authPic ?? undefined,
+  firstName: owner.firstName,
+  lastName: owner.lastName ?? "",
+  size: "sm" as const
+});
 
 const CreateContactModal = () => {
   const { setToastMessage } = useToast();
-
   const translateText = useTranslator(
     "crmModule",
     "contacts",
     "createContactModal"
   );
-
   const countryCode = useGetDefaultCountryCode();
-  const { setIsAddContactModalOpen, setCrmModalType } = useCrmStore((state) => state);
-  const { isCrmAdmin, isCrmSalesManager, isCrmSalesRepresentative, isSuperAdmin } = useSessionData();
+  const { setIsAddContactModalOpen, setCrmModalType } = useCrmStore(
+    (state) => state
+  );
+  const {
+    isCrmAdmin,
+    isCrmSalesManager,
+    isCrmSalesRepresentative,
+    isSuperAdmin
+  } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
+  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
+  const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 });
+
+  const [selectedOwner, setSelectedOwner] = useState<ContactOwner | null>(null);
+  const [previousOwner, setPreviousOwner] = useState<ContactOwner | null>(null);
+  const [ownerSearch, setOwnerSearch] = useState("");
+  const ownerSectionRef = useRef<HTMLDivElement>(null);
+
+  const isOwnerReadonly =
+    isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin;
 
   const crmRole = useMemo((): ContactOwner["crmRole"] => {
     if (isCrmAdmin) return "CRM_ADMIN";
@@ -65,7 +89,7 @@ const CreateContactModal = () => {
     return "CRM_SALES_REPRESENTATIVE";
   }, [isCrmAdmin, isCrmSalesManager]);
 
-  const defaultOwner = useMemo((): ContactOwner | null => {
+  const defaultOwner = useMemo<ContactOwner | null>(() => {
     if (!me?.employeeId) return null;
     return {
       employeeId: me.employeeId as number,
@@ -77,31 +101,33 @@ const CreateContactModal = () => {
     };
   }, [me, crmRole]);
 
-  const [selectedOwner, setSelectedOwner] = useState<ContactOwner | null>(null);
-  const [previousOwner, setPreviousOwner] = useState<ContactOwner | null>(null);
-  const [ownerSearch, setOwnerSearch] = useState("");
-  const ownerSectionRef = useRef<HTMLDivElement>(null);
+  const companyOptions = useMemo(
+    () =>
+      (companiesData?.items ?? []).map((c) => ({ id: c.id, name: c.name })),
+    [companiesData]
+  );
 
-  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
-  const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 });
+  const ownerOptions = useMemo<ContactOwner[]>(
+    () =>
+      (ownersData?.items ?? []).map((o) => ({
+        employeeId: o.employeeId,
+        firstName: o.firstName,
+        lastName: o.lastName,
+        email: o.email,
+        authPic: o.authPic,
+        crmRole: o.crmRole
+      })),
+    [ownersData]
+  );
 
-  const companyOptions = (companiesData?.items ?? []).map((c) => ({
-    id: c.id,
-    name: c.name
-  }));
-
-  const ownerOptions: ContactOwner[] = (ownersData?.items ?? []).map((o) => ({
-    employeeId: o.employeeId,
-    firstName: o.firstName,
-    lastName: o.lastName,
-    email: o.email,
-    authPic: o.authPic,
-    crmRole: o.crmRole
-  }));
+  const closeModal = (): void => {
+    setIsAddContactModalOpen(false);
+    setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
+  };
 
   const handleSuccess = () => {
     setSubmitting(false);
-    handleCloseModal();
+    closeModal();
     setToastMessage({
       open: true,
       toastType: ToastType.SUCCESS,
@@ -120,12 +146,10 @@ const CreateContactModal = () => {
     });
   };
 
-  const handleCloseModal = (): void => {
-    setIsAddContactModalOpen(false);
-    setCrmModalType(CrmModalTypes.ADD_CONTACT_MODAL);
-  };
-
-  const { mutate: createContact, isPending } = useCreateContact(handleSuccess, handleError);
+  const { mutate: createContact, isPending } = useCreateContact(
+    handleSuccess,
+    handleError
+  );
 
   const submitContact = (values: CreateContactFormValues) => {
     const payload: CreateContactPayload = {
@@ -137,12 +161,13 @@ const CreateContactModal = () => {
         : undefined,
       ownerId: values.ownerId ?? undefined
     };
-
     createContact(payload);
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required(translateText(["validations", "contactNameRequired"])),
+    name: Yup.string().required(
+      translateText(["validations", "contactNameRequired"])
+    ),
     email: Yup.string()
       .required(translateText(["validations", "emailRequired"]))
       .email(translateText(["validations", "emailInvalid"])),
@@ -152,12 +177,7 @@ const CreateContactModal = () => {
       .test(
         "valid-contact-number",
         translateText(["validations", "contactNumber"]),
-        function (inputContactNumber) {
-          if (!inputContactNumber || inputContactNumber === "") {
-            return true;
-          }
-          return isValidPhoneNumber().test(inputContactNumber);
-        }
+        (value) => !value || isValidPhoneNumber().test(value)
       )
       .max(
         characterLengths.PHONE_NUMBER_LENGTH_MAX,
@@ -192,6 +212,7 @@ const CreateContactModal = () => {
     submitForm
   } = formik;
 
+  // Pre-select the current user as the default owner once available.
   useEffect(() => {
     if (defaultOwner && !selectedOwner) {
       setSelectedOwner(defaultOwner);
@@ -199,21 +220,21 @@ const CreateContactModal = () => {
     }
   }, [defaultOwner]);
 
-  // Restore previous owner when clicking outside the owner section without selecting a new one
+  // If the user cleared the owner chip and then clicks outside without choosing
+  // a new one, restore the previous selection.
   useEffect(() => {
+    if (selectedOwner || !previousOwner) return;
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        ownerSectionRef.current &&
-        !ownerSectionRef.current.contains(event.target as Node)
-      ) {
-        if (!selectedOwner && previousOwner) {
-          setSelectedOwner(previousOwner);
-          setFieldValue("ownerId", previousOwner.employeeId);
-          setPreviousOwner(null);
-          setOwnerSearch("");
-        }
+      const target = event.target as Node;
+      if (ownerSectionRef.current && !ownerSectionRef.current.contains(target)) {
+        setSelectedOwner(previousOwner);
+        setFieldValue("ownerId", previousOwner.employeeId);
+        setPreviousOwner(null);
+        setOwnerSearch("");
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [selectedOwner, previousOwner]);
@@ -231,58 +252,72 @@ const CreateContactModal = () => {
     setFieldValue("ownerId", null);
   };
 
-  const isOwnerReadonly =
-    isCrmSalesRepresentative && !isCrmSalesManager && !isCrmAdmin && !isSuperAdmin;
+  const handleAddCompany = () => {
+    // TODO: open the "Add company" flow.
+  };
 
-  const filteredCompanyItems = useMemo((): DropdownItem[] => {
-    if (!values.company.trim()) return [];
+  const companyItems = useMemo<DropdownItem[]>(() => {
+    const term = values.company.trim().toLowerCase();
+    if (!term) return [];
 
     const matches = companyOptions
-      .filter((c) => c.name.toLowerCase().includes(values.company.toLowerCase()))
-      .map((c) => ({
+      .filter((c) => c.name.toLowerCase().includes(term))
+      .map<DropdownItem>((c) => ({
         id: String(c.id),
         content: <span className="body2 text-primary-text">{c.name}</span>
       }));
 
-    const addItem: DropdownItem = {
-      id: ADD_COMPANY_ID,
-      content: (
-        <div className="flex items-center justify-between -mx-4 -my-2 px-4 py-3 border-t border-secondary-accent bg-primary/10 hover:bg-primary/15">
-          <span className="body2 font-medium text-primary truncate">
-            {translateText(["buttons", "addCompany"])}
-          </span>
-          <PlusIcon fill="currentColor" width="16" height="16" />
-        </div>
-      )
-    };
+    if (matches.length === 0) return [];
 
-    // When no matches, show no-results text before the add button via emptyMessage.
-    // When matches exist, append the add button as the last item.
-    return matches.length > 0 ? [...matches, addItem] : [];
-  }, [companyOptions, values.company]);
+    return [
+      ...matches,
+      {
+        id: ADD_COMPANY_ID,
+        content: (
+          <div className="flex items-center justify-between -mx-4 -my-2 px-4 py-3 border-t border-secondary-accent bg-primary/10 hover:bg-primary/15">
+            <span className="body2 font-medium text-primary truncate">
+              {translateText(["buttons", "addCompany"])}
+            </span>
+            <PlusIcon />
+          </div>
+        )
+      }
+    ];
+  }, [companyOptions, values.company, translateText]);
 
-  const filteredOwnerItems = useMemo((): DropdownItem[] => {
-    if (!ownerSearch.trim()) return [];
+  const ownerItems = useMemo<DropdownItem[]>(() => {
+    const term = ownerSearch.trim().toLowerCase();
+    if (!term) return [];
+
     return ownerOptions
-      .filter((o) =>
-        getFullName(o).toLowerCase().includes(ownerSearch.toLowerCase())
-      )
+      .filter((o) => getFullName(o).toLowerCase().includes(term))
       .map((o) => ({
         id: String(o.employeeId),
         content: (
           <AvatarChip
             label={getFullName(o)}
-            avatarProps={{
-              src: o.authPic ?? undefined,
-              firstName: o.firstName,
-              lastName: o.lastName ?? "",
-              size: "sm"
-            }}
+            avatarProps={toAvatarProps(o)}
             showActionButton={false}
           />
         )
       }));
   }, [ownerOptions, ownerSearch]);
+
+  const handleCompanyItemSelect = (item: DropdownItem) => {
+    if (item.id === ADD_COMPANY_ID) {
+      handleAddCompany();
+      return;
+    }
+    const company = companyOptions.find((c) => String(c.id) === item.id);
+    if (!company) return;
+    setFieldValue("company", company.name);
+    setFieldValue("companyId", company.id);
+  };
+
+  const handleOwnerItemSelect = (item: DropdownItem) => {
+    const owner = ownerOptions.find((o) => String(o.employeeId) === item.id);
+    if (owner) handleOwnerSelect(owner);
+  };
 
   const companyEmptyMessage = (
     <div className="flex flex-col w-full">
@@ -291,13 +326,13 @@ const CreateContactModal = () => {
       </div>
       <button
         type="button"
+        onClick={handleAddCompany}
         className="w-full bg-primary-background hover:bg-primary-background/80 border-t border-secondary-accent border-x-0 border-b-0 px-4 py-3 rounded-b-md flex items-center justify-between outline-none focus:shadow-[0px_0px_4px_0px_rgba(0,0,0,0.60)]"
-        onClick={() => {}}
       >
         <span className="body2 text-primary-text truncate">
           {translateText(["buttons", "addCompany"])}
         </span>
-        <PlusIcon width="16" height="16" />
+        <PlusIcon />
       </button>
     </div>
   );
@@ -307,6 +342,46 @@ const CreateContactModal = () => {
       {translateText(["noResults", "owner"])}
     </div>
   );
+
+  const renderOwnerField = () => {
+    if (selectedOwner) {
+      return (
+        <div className="w-full">
+          <label className="subtitle1 leading-normal text-black block mb-2">
+            {translateText(["labels", "contactOwner"])}
+          </label>
+          <div className="h-12 rounded-lg bg-gray-100 flex items-center px-3">
+            <AvatarChip
+              label={getFullName(selectedOwner)}
+              avatarProps={toAvatarProps(selectedOwner)}
+              showActionButton={!isOwnerReadonly}
+              onActionClick={isOwnerReadonly ? undefined : handleOwnerClear}
+              actionIcon={isOwnerReadonly ? undefined : <CloseIcon />}
+              actionButtonAriaLabel="Remove owner"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (isOwnerReadonly) return null;
+
+    return (
+      <SearchableDropdown
+        id="owner-search"
+        items={ownerItems}
+        onSelect={handleOwnerItemSelect}
+        emptyMessage={ownerEmptyMessage}
+        inputFieldProps={{
+          label: translateText(["labels", "contactOwner"]),
+          placeholder: translateText(["placeholders", "contactOwner"]),
+          value: ownerSearch,
+          onChange: (e) => setOwnerSearch(e.target.value),
+          "aria-label": translateText(["ariaLabels", "contactOwner"])
+        }}
+      />
+    );
+  };
 
   return (
     <div className="flex flex-col h-full justify-between gap-[0.625rem]">
@@ -338,15 +413,8 @@ const CreateContactModal = () => {
 
       <SearchableDropdown
         id="company-search"
-        items={filteredCompanyItems}
-        onSelect={(item) => {
-          if (item.id === ADD_COMPANY_ID) return;
-          const company = companyOptions.find((c) => String(c.id) === item.id);
-          if (company) {
-            setFieldValue("company", company.name);
-            setFieldValue("companyId", company.id);
-          }
-        }}
+        items={companyItems}
+        onSelect={handleCompanyItemSelect}
         emptyMessage={companyEmptyMessage}
         inputFieldProps={{
           label: translateText(["labels", "company"]),
@@ -372,56 +440,14 @@ const CreateContactModal = () => {
         fullWidth
       />
 
-      <div ref={ownerSectionRef}>
-      {selectedOwner ? (
-        <div className="w-full">
-          <label className="subtitle1 leading-normal text-black block mb-2">
-            {translateText(["labels", "contactOwner"])}
-          </label>
-          <div className="h-12 rounded-lg bg-gray-100 flex items-center px-3">
-            <AvatarChip
-              label={getFullName(selectedOwner)}
-              avatarProps={{
-                src: selectedOwner.authPic ?? undefined,
-                firstName: selectedOwner.firstName,
-                lastName: selectedOwner.lastName ?? "",
-                size: "sm"
-              }}
-              showActionButton={!isOwnerReadonly}
-              onActionClick={isOwnerReadonly ? undefined : handleOwnerClear}
-              actionIcon={isOwnerReadonly ? undefined : <SkappCloseIcon />}
-              actionButtonAriaLabel="Remove owner"
-            />
-          </div>
-        </div>
-      ) : !isOwnerReadonly ? (
-        <SearchableDropdown
-          id="owner-search"
-          items={filteredOwnerItems}
-          onSelect={(item) => {
-            const owner = ownerOptions.find(
-              (o) => String(o.employeeId) === item.id
-            );
-            if (owner) handleOwnerSelect(owner);
-          }}
-          emptyMessage={ownerEmptyMessage}
-          inputFieldProps={{
-            label: translateText(["labels", "contactOwner"]),
-            placeholder: translateText(["placeholders", "contactOwner"]),
-            value: ownerSearch,
-            onChange: (e) => setOwnerSearch(e.target.value),
-            "aria-label": translateText(["ariaLabels", "contactOwner"])
-          }}
-        />
-      ) : null}
-      </div>
+      <div ref={ownerSectionRef}>{renderOwnerField()}</div>
 
       <div className="flex flex-row justify-end py-[0.85rem] gap-[1rem]">
         <ButtonV2
           variant="tertiary"
           type="button"
           disabled={isSubmitting}
-          onClick={handleCloseModal}
+          onClick={closeModal}
           icon={<CloseIcon />}
           iconPosition="end"
           aria-label={translateText(["ariaLabels", "cancel"])}
