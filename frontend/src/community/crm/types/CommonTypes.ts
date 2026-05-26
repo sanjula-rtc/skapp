@@ -25,7 +25,7 @@ export interface CrmCompanyType {
 export interface ContactOwner {
   employeeId: number;
   firstName: string;
-  lastName: string;
+  lastName: string | null;
   email: string;
   authPic: string | null;
 }
@@ -137,8 +137,8 @@ export interface CrmPriorityType {
   orderIndex: number;
 }
 
-export interface CrmOwnersResponseType extends PaginatedResponseType<ContactOwner> {}
-export interface CrmCompaniesResponseType extends PaginatedResponseType<CompanyLookup> {}
+export type CrmOwnersResponseType = PaginatedResponseType<ContactOwner>;
+export type CrmCompaniesResponseType = PaginatedResponseType<CompanyLookup>;
 
 export interface CreateContactPayload {
   name: string;
