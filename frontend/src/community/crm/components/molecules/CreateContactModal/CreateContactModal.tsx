@@ -29,7 +29,6 @@ import {
 } from "~community/crm/types/CommonTypes";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
 import { useGetUserPersonalDetails } from "~community/people/api/PeopleApi";
-import useGetDefaultCountryCode from "~community/people/hooks/useGetDefaultCountryCode";
 
 const ADD_COMPANY_ID = "__add_company__";
 
@@ -48,6 +47,7 @@ const getFullName = (owner: ContactOwnerLookup): string =>
   [owner.firstName, owner.lastName].filter(Boolean).join(" ");
 
 const toAvatarProps = (owner: ContactOwnerLookup) => ({
+  id: String(owner.employeeId),
   src: owner.authPic ?? undefined,
   firstName: owner.firstName,
   lastName: owner.lastName ?? "",
@@ -73,7 +73,6 @@ const CreateContactModal = () => {
     "contacts",
     "createContactModal"
   );
-  const countryCode = useGetDefaultCountryCode();
   const { setIsAddContactModalOpen, setCrmModalType } = useCrmStore(
     (state) => state
   );
@@ -81,8 +80,8 @@ const CreateContactModal = () => {
     isCrmSalesManager
   } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
-  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 });
-  const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 });
+  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 }, isAddContactModalOpen);
+  const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 }, isAddContactModalOpen);
 
   const [selectedOwner, setSelectedOwner] = useState<ContactOwnerLookup | null>(null);
   const [previousOwner, setPreviousOwner] = useState<ContactOwnerLookup | null>(null);
@@ -94,7 +93,7 @@ const CreateContactModal = () => {
   const defaultOwner = useMemo<ContactOwnerLookup | null>(() => {
     if (!me?.employeeId) return null;
     return toOwnerLookup({
-      employeeId: me.employeeId as number,
+      employeeId: Number(me.employeeId),
       firstName: me.firstName,
       lastName: me.lastName,
       authPic: me.authPic as string | null
@@ -189,8 +188,7 @@ const CreateContactModal = () => {
     onSubmit: submitContact,
     validationSchema,
     validateOnChange: false,
-    validateOnBlur: false,
-    enableReinitialize: true
+    validateOnBlur: false
   });
 
   const {
@@ -345,7 +343,7 @@ const CreateContactModal = () => {
               showActionButton={!isOwnerReadonly}
               onActionClick={isOwnerReadonly ? undefined : handleOwnerClear}
               actionIcon={isOwnerReadonly ? undefined : <CloseIcon />}
-              actionButtonAriaLabel="Remove owner"
+              actionButtonAriaLabel={translateText(["ariaLabels", "removeOwner"])}
             />
           </div>
         </div>
