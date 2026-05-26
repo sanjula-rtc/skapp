@@ -4,11 +4,12 @@ import {
   CloseIcon,
   InputField,
   PlusIcon,
-  SearchableDropdown
 } from "@rootcodelabs/skapp-ui";
 import { useFormik } from "formik";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import * as Yup from "yup";
+
+import SearchableDropdown from "~community/common/components/molecules/SearchableDropdown/SearchableDropdown";
 
 import { characterLengths } from "~community/common/constants/stringConstants";
 import { ToastType } from "~community/common/enums/ComponentEnums";
@@ -359,13 +360,10 @@ const CreateContactModal = () => {
         items={ownerItems}
         onSelect={handleOwnerItemSelect}
         emptyMessage={ownerEmptyMessage}
-        inputFieldProps={{
-          label: translateText(["labels", "contactOwner"]),
-          placeholder: translateText(["placeholders", "contactOwner"]),
-          value: ownerSearch,
-          onChange: (e) => setOwnerSearch(e.target.value),
-          "aria-label": translateText(["ariaLabels", "contactOwner"])
-        }}
+        label={translateText(["labels", "contactOwner"])}
+        placeholder={translateText(["placeholders", "contactOwner"])}
+        value={ownerSearch}
+        onChange={(e) => setOwnerSearch(e.target.value)}
       />
     );
   };
@@ -403,15 +401,12 @@ const CreateContactModal = () => {
         items={companyItems}
         onSelect={handleCompanyItemSelect}
         emptyMessage={companyEmptyMessage}
-        inputFieldProps={{
-          label: translateText(["labels", "company"]),
-          placeholder: translateText(["placeholders", "company"]),
-          value: values.company,
-          onChange: (e) => {
-            setFieldValue("company", e.target.value);
-            setFieldValue("companyId", null);
-          },
-          "aria-label": translateText(["ariaLabels", "company"])
+        label={translateText(["labels", "company"])}
+        placeholder={translateText(["placeholders", "company"])}
+        value={values.company}
+        onChange={(e) => {
+          setFieldValue("company", e.target.value);
+          setFieldValue("companyId", null);
         }}
       />
 
