@@ -21,7 +21,7 @@ import {
   useCreateContact,
   useGetCrmCompanies,
   useGetCrmOwners
-} from "~community/crm/api/CrmContactsApi";
+} from "~community/crm/api/ContactsApi";
 import { useCrmStore } from "~community/crm/store/store";
 import {
   ContactOwnerLookup,
@@ -29,7 +29,8 @@ import {
 } from "~community/crm/types/CommonTypes";
 import { CrmModalTypes } from "~community/crm/types/ModalTypes";
 import { useGetUserPersonalDetails } from "~community/people/api/PeopleApi";
-
+import { ownerFullName as getFullName } from "~community/crm/utils/contactTableHelpers";
+import { DEFAULT_PAGE_SIZE } from "~community/crm/constants/contactConstants";
 const ADD_COMPANY_ID = "__add_company__";
 
 type DropdownItem = { id: string; content: ReactNode };
@@ -43,15 +44,12 @@ interface CreateContactFormValues {
   ownerId: number | null;
 }
 
-const getFullName = (owner: ContactOwnerLookup): string =>
-  [owner.firstName, owner.lastName].filter(Boolean).join(" ");
-
 const toAvatarProps = (owner: ContactOwnerLookup) => ({
   id: String(owner.employeeId),
   src: owner.authPic ?? undefined,
   firstName: owner.firstName,
   lastName: owner.lastName ?? "",
-  size: "sm" as const
+  size: "sm"
 });
 
 const toOwnerLookup = (source: {
@@ -80,8 +78,8 @@ const CreateContactModal = () => {
     isCrmSalesManager
   } = useSessionData();
   const { data: me } = useGetUserPersonalDetails();
-  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: 100 }, isAddContactModalOpen);
-  const { data: ownersData } = useGetCrmOwners({ page: 0, size: 100 }, isAddContactModalOpen);
+  const { data: companiesData } = useGetCrmCompanies({ page: 0, size: DEFAULT_PAGE_SIZE });
+  const { data: ownersData } = useGetCrmOwners({ page: 0, size: DEFAULT_PAGE_SIZE });
 
   const [selectedOwner, setSelectedOwner] = useState<ContactOwnerLookup | null>(null);
   const [previousOwner, setPreviousOwner] = useState<ContactOwnerLookup | null>(null);

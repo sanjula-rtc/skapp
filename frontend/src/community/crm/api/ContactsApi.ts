@@ -24,7 +24,7 @@ interface OwnersParams {
 export const useGetCrmCompanies = (
   params: CompaniesParams = {}
 ): UseQueryResult<CrmCompaniesResponseType> => {
-  const { page = 0, size = 100, searchKeyword } = params;
+  const { page, size, searchKeyword } = params;
 
   return useQuery({
     queryKey: contactQueryKeys.CRM_COMPANIES(params),
@@ -36,7 +36,7 @@ export const useGetCrmCompanies = (
           ...(searchKeyword ? { searchKeyword } : {})
         }
       });
-      return response?.data?.results?.[0] as CrmCompaniesResponseType;
+      return response?.data?.results?.[0];
     }
   });
 };
@@ -44,7 +44,7 @@ export const useGetCrmCompanies = (
 export const useGetCrmOwners = (
   params: OwnersParams = {}
 ): UseQueryResult<CrmOwnersResponseType> => {
-  const { page = 0, size = 100, searchKeyword } = params;
+  const { page, size, searchKeyword } = params;
 
   return useQuery({
     queryKey: contactQueryKeys.CRM_OWNERS(params),
@@ -56,7 +56,7 @@ export const useGetCrmOwners = (
           ...(searchKeyword ? { searchKeyword } : {})
         }
       });
-      return response?.data?.results?.[0] as CrmOwnersResponseType;
+      return response?.data?.results?.[0];
     }
   });
 };
