@@ -2,8 +2,8 @@ import { Box } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-
 import { useAuth } from "~community/auth/providers/AuthProvider";
+
 import ContentLayout from "~community/common/components/templates/ContentLayout/ContentLayout";
 import ROUTES from "~community/common/constants/routes";
 import { useTranslator } from "~community/common/hooks/useTranslator";
@@ -15,7 +15,7 @@ import { usePeopleStore } from "~community/people/store/store";
 import { DirectoryModalTypes } from "~community/people/types/ModalTypes";
 
 const Pending = () => {
-  const translateText = useTranslator("peopleModule");
+  const translateText = useTranslator("peopleModule", "peoples");
   const { user } = useAuth();
   const router = useRouter();
 
@@ -48,28 +48,16 @@ const Pending = () => {
         <title>{translateText(["title"])}</title>
       </Head>
       <ContentLayout
-        breadcrumbs={[
-          {
-            label: translateText(["dashboard.people"])
-          },
-          {
-            label: translateText(["peoples.title"]),
-            href: ROUTES.PEOPLE.DIRECTORY
-          },
-          {
-            label: translateText(["breadcrumbs.pendingInvitations"])
-          }
-        ]}
-        title={translateText(["peoples.pendingInvitations.title"])}
-        pageHead={translateText(["peoples.pendingInvitations.pageHead"])}
+        title={translateText(["pendingInvitations.title"])}
+        pageHead={translateText(["pendingInvitations.pageHead"])}
         primaryButtonText={
           isAdmin && !isPendingInvitationListOpen
-            ? translateText(["peoples.addPeople"])
+            ? translateText(["addPeople"])
             : undefined
         }
         secondaryBtnText={
           isAdmin && !isPendingInvitationListOpen
-            ? translateText(["peoples.addBulkPeople"])
+            ? translateText(["addBulkPeople"])
             : undefined
         }
         secondaryBtnIconName={IconName.UP_ARROW_ICON}

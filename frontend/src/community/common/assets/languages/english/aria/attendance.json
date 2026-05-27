@@ -1,7 +1,6 @@
 {
   "timeWidget": {
     "widget": "Clock Widget",
-    "clockIn": "Clock in",
     "startTimer": "Resume timer",
     "pauseTimer": "Take a break"
   },

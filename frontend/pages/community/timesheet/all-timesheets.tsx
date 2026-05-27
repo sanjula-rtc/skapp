@@ -19,7 +19,7 @@ import { useGetEmployeesAndTeamsForAnalytics } from "~community/people/api/Peopl
 import { usePeopleStore } from "~community/people/store/store";
 
 const AllTimesheetsPage: NextPage = () => {
-  const translateText = useTranslator("attendanceModule");
+  const translateText = useTranslator("attendanceModule", "timesheet");
   const router = useRouter();
 
   const { user } = useAuth();
@@ -95,17 +95,9 @@ const AllTimesheetsPage: NextPage = () => {
       notificationType={NotificationSummaryType.TIME_ENTRY}
     >
       <ContentLayout
-        breadcrumbs={[
-          {
-            label: translateText(["dashboards.stepTimeSheet"])
-          },
-          {
-            label: translateText(["timesheet.allTimesheets.title"])
-          }
-        ]}
-        title={translateText(["timesheet.allTimesheets.title"])}
+        title={translateText(["allTimesheets.title"])}
         isDividerVisible={true}
-        pageHead={translateText(["timesheet.allTimesheets.pageHead"])}
+        pageHead={translateText(["allTimesheets.pageHead"])}
       >
         <Stack sx={{ gap: 2 }}>
           <PeopleAndTeamAutocompleteSearch

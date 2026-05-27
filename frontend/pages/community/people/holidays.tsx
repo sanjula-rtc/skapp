@@ -15,7 +15,7 @@ import {
 } from "~community/people/types/HolidayTypes";
 
 const Holidays: NextPage = () => {
-  const translateText = useTranslator("peopleModule");
+  const translateText = useTranslator("peopleModule", "holidays");
 
   const [setPopupTitle] = useState<string | undefined>();
   const [holidayDataItems, setHolidayDataItems] = useState<Holiday[]>([]);
@@ -80,16 +80,8 @@ const Holidays: NextPage = () => {
   return (
     <>
       <ContentLayout
-        breadcrumbs={[
-          {
-            label: translateText(["dashboard.people"])
-          },
-          {
-            label: translateText(["holidays.holidays"])
-          }
-        ]}
-        title={translateText(["holidays.holidays"])}
-        pageHead={translateText(["holidays.title"])}
+        title={translateText(["holidays"])}
+        pageHead={translateText(["title"])}
         isDividerVisible={true}
         onPrimaryButtonClick={handleAddHoliday}
         primaryButtonText={isAdmin && primaryButtonText}

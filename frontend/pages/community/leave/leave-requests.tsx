@@ -23,7 +23,7 @@ import useGoogleAnalyticsEvent from "~enterprise/common/hooks/useGoogleAnalytics
 import { GoogleAnalyticsTypes } from "~enterprise/common/types/GoogleAnalyticsTypes";
 
 const LeaveRequests: NextPage = () => {
-  const translateText = useTranslator("leaveModule");
+  const translateText = useTranslator("leaveModule", "leaveRequests");
   const translateAria = useTranslator("leaveAria", "allLeaveRequests");
   const router = useRouter();
   const { user } = useAuth();
@@ -110,16 +110,8 @@ const LeaveRequests: NextPage = () => {
       notificationType={NotificationSummaryType.LEAVE_REQUEST}
     >
       <ContentLayout
-        breadcrumbs={[
-          {
-            label: translateText(["analytics.stepLeave"])
-          },
-          {
-            label: translateText(["leaveRequests.title"])
-          }
-        ]}
-        pageHead={translateText(["leaveRequests.pageHead"])}
-        title={translateText(["leaveRequests.title"])}
+        pageHead={translateText(["pageHead"])}
+        title={translateText(["title"])}
         isDividerVisible={true}
       >
         <Box

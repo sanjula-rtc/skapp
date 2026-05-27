@@ -13,7 +13,7 @@ import { usePeopleStore } from "~community/people/store/store";
 import { TeamModelTypes } from "~community/people/types/TeamTypes";
 
 const Teams: NextPage = () => {
-  const translateText = useTranslator("peopleModule");
+  const translateText = useTranslator("peopleModule", "teams");
   const [teamSearchTerm, setTeamSearchTerm] = useState<string>("");
 
   const { setTeamModalType, setIsTeamModalOpen } = usePeopleStore((state) => ({
@@ -28,20 +28,12 @@ const Teams: NextPage = () => {
   return (
     <>
       <ContentLayout
-        breadcrumbs={[
-          {
-            label: translateText(["dashboard.people"])
-          },
-          {
-            label: translateText(["teams.title"])
-          }
-        ]}
-        pageHead={translateText(["teams.tabTitle"])}
-        title={translateText(["teams.title"])}
+        pageHead={translateText(["tabTitle"])}
+        title={translateText(["title"])}
         primaryButtonText={
           isPeopleAdmin &&
           (allTeams?.length ?? 0) !== 0 &&
-          translateText(["teams.addTeam"])
+          translateText(["addTeam"])
         }
         onPrimaryButtonClick={() => {
           setIsTeamModalOpen(true);
@@ -53,7 +45,7 @@ const Teams: NextPage = () => {
           <SearchBox
             value={teamSearchTerm}
             setSearchTerm={setTeamSearchTerm}
-            placeHolder={translateText(["teams.teamSearchPlaceholder"])}
+            placeHolder={translateText(["teamSearchPlaceholder"])}
           />
           <TeamsTable
             teamSearchTerm={teamSearchTerm}
@@ -61,7 +53,7 @@ const Teams: NextPage = () => {
               setIsTeamModalOpen(true);
               setTeamModalType(TeamModelTypes.ADD_TEAM);
             }}
-            teamAddButtonText={translateText(["teams.addTeam"])}
+            teamAddButtonText={translateText(["addTeam"])}
             isAdmin={isPeopleAdmin}
           />
           <TeamModalController />

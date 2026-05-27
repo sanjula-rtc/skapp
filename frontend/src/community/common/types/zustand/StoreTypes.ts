@@ -1,5 +1,3 @@
-import { BreadcrumbItem } from "@rootcodelabs/skapp-ui";
-
 import { OrganizationCreateType } from "../OrganizationCreateTypes";
 import { SettingsModalTypes } from "../SettingsTypes";
 import { VersionUpgradeInfoType } from "../VersionUpgrade";
@@ -28,7 +26,6 @@ export interface CommonStoreTypes extends actionTypes {
     isUnreadCountVisible: boolean;
     notificationFilterType: NotifyFilterButtonTypes;
   };
-
   setNotifyData: (value: {
     unreadCount?: number;
     isUnreadCountVisible?: boolean;
@@ -42,10 +39,6 @@ export interface CommonStoreTypes extends actionTypes {
   organizationLogo: string;
   themeColor: string;
   setOrgData: (values: OrganizationCreateType) => void;
-
-  // Breadcrumbs
-  breadcrumbs: BreadcrumbItem[];
-  setBreadcrumbs: (items: BreadcrumbItem[]) => void;
 }
 
 interface VersionUpgradeActionTypes {

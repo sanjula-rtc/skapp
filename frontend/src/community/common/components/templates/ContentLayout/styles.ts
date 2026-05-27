@@ -11,6 +11,7 @@ const styles = (theme: Theme): StyleProps => ({
     maxWidth: "103.125rem",
     width: "100%",
     height: "auto",
+    overflowY: "auto",
     margin: "0rem auto"
   },
   header: {

@@ -12,7 +12,7 @@ import { JobFamilyActionModalEnums } from "~community/people/enums/JobFamilyEnum
 import { usePeopleStore } from "~community/people/store/store";
 
 const JobFamily: NextPage = () => {
-  const translateText = useTranslator("peopleModule");
+  const translateText = useTranslator("peopleModule", "jobFamily");
 
   const { data: allJobFamiliesData, isPending: isJobFamilyPending } =
     useGetAllJobFamilies();
@@ -34,21 +34,13 @@ const JobFamily: NextPage = () => {
 
   return (
     <ContentLayout
-      breadcrumbs={[
-        {
-          label: translateText(["dashboard.people"])
-        },
-        {
-          label: translateText(["jobFamily.title"])
-        }
-      ]}
-      pageHead={translateText(["jobFamily.tabTitle"])}
-      title={translateText(["jobFamily.title"])}
+      pageHead={translateText(["tabTitle"])}
+      title={translateText(["title"])}
       isDividerVisible
       primaryButtonText={
         Boolean(allJobFamiliesData?.length ?? 0) &&
         isPeopleAdmin &&
-        translateText(["jobFamily.addJobFamily"])
+        translateText(["addJobFamily"])
       }
       onPrimaryButtonClick={() =>
         setJobFamilyModalType(JobFamilyActionModalEnums.ADD_JOB_FAMILY)
@@ -59,9 +51,7 @@ const JobFamily: NextPage = () => {
           <SearchBox
             value={jobFamilySearchTerm}
             setSearchTerm={setJobFamilySearchTerm}
-            placeHolder={translateText([
-              "jobFamily.jobFamilySearchPlaceholder"
-            ])}
+            placeHolder={translateText(["jobFamilySearchPlaceholder"])}
           />
         )}
         <JobFamilyTable

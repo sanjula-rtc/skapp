@@ -392,7 +392,7 @@ const Drawer = (): JSX.Element => {
                           if (!subTreeRoute) return null;
                           const subRoute =
                             subTreeRoute as typeof subTreeRoute & {
-                              notificationCount?: number;
+                              notificationCount?: string;
                             };
 
                           return (

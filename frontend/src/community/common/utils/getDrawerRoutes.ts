@@ -294,7 +294,9 @@ const getDrawerRoutes = ({
             icon: route?.icon,
             hasSubTree: false,
             notificationCount:
-              notificationSignCount > 0 ? notificationSignCount : undefined
+              notificationSignCount > 0
+                ? notificationSignCount.toString()
+                : undefined
           };
         }
       }
@@ -312,7 +314,7 @@ const getDrawerRoutes = ({
             if (subRoute.id === "2B" && notificationLeaveCount > 0) {
               return {
                 ...subRoute,
-                notificationCount: notificationLeaveCount
+                notificationCount: notificationLeaveCount.toString()
               };
             }
 
@@ -320,7 +322,7 @@ const getDrawerRoutes = ({
             if (subRoute.id === "1B" && notificationTimesheetCount > 0) {
               return {
                 ...subRoute,
-                notificationCount: notificationTimesheetCount
+                notificationCount: notificationTimesheetCount.toString()
               };
             }
 
@@ -328,7 +330,7 @@ const getDrawerRoutes = ({
             if (subRoute.id === "4A" && notificationSignCount > 0) {
               return {
                 ...subRoute,
-                notificationCount: notificationSignCount
+                notificationCount: notificationSignCount.toString()
               };
             }
 

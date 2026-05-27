@@ -1,10 +1,8 @@
 import { Box, useTheme } from "@mui/material";
 import { JSX } from "react";
 
-import { MAX_NOTIFICATION_COUNT } from "~community/common/constants/commonConstants";
-
 interface NotificationBadgeProps {
-  count: number;
+  count: number | string;
   show?: boolean;
 }
 
@@ -15,9 +13,6 @@ const NotificationBadge = ({
   const theme = useTheme();
 
   if (!show) return null;
-
-  const displayCount =
-    count > MAX_NOTIFICATION_COUNT ? `${MAX_NOTIFICATION_COUNT}+` : count;
 
   return (
     <Box
@@ -36,7 +31,7 @@ const NotificationBadge = ({
         flexShrink: 0
       }}
     >
-      {displayCount}
+      {count}
     </Box>
   );
 };
