@@ -1,5 +1,5 @@
 import { CircularProgress } from "@mui/material";
-import { AvatarChip, AvatarGroup, Checkbox } from "@rootcodelabs/skapp-ui";
+import { Checkbox } from "@rootcodelabs/skapp-ui";
 import { FormikProps } from "formik";
 import {
   MouseEvent,
@@ -10,6 +10,8 @@ import {
   useState
 } from "react";
 
+import AvatarChip from "~community/common/components/molecules/AvatarChip/AvatarChip";
+import AvatarGroup from "~community/common/components/molecules/AvatarGroup/AvatarGroup";
 import Popper from "~community/common/components/molecules/Popper/Popper";
 import SearchBox from "~community/common/components/molecules/SearchBox/SearchBox";
 import { useTranslator } from "~community/common/hooks/useTranslator";
@@ -241,22 +243,26 @@ const WorkLocationEmployeeSelector = ({
     }
   };
 
+  const renderAllEmployeesChip = () => (
+    <AvatarChip
+      firstName={translateText(["form.allEmployees"]).trim()}
+      lastName=""
+      avatarUrl={undefined}
+      isTooltipEnabled
+    />
+  );
+
   const renderTriggerContent = () => {
     if (selectedCount === 0) {
       return (
-        <span className="body3 text-secondary-text ml-2">
+        <span className="body1 text-secondary-text">
           {translateText(["form.assignEmployeesLabel"])}
         </span>
       );
     }
 
     if (isAllSelected) {
-      return (
-        <AvatarChip
-          label={translateText(["form.allEmployees"])}
-          showAvatar={true}
-        />
-      );
+      return renderAllEmployeesChip();
     }
 
     if (selectedCount <= 2) {
@@ -265,32 +271,30 @@ const WorkLocationEmployeeSelector = ({
           {selectedEmployees.map((emp) => (
             <AvatarChip
               key={emp.employeeId}
-              label={
-                selectedCount === 1
-                  ? `${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim()
-                  : (emp.firstName ?? "")
-              }
-              avatarProps={{
-                id: String(emp.employeeId),
-                firstName: emp.firstName,
-                lastName: emp.lastName,
-                src: emp.authPic
-              }}
+              firstName={emp.firstName ?? ""}
+              lastName={(emp.lastName ?? "").trim()}
+              avatarUrl={emp.authPic}
+              isTooltipEnabled
             />
           ))}
         </div>
       );
     }
 
+    const remainingEmployees = selectedEmployees.slice(3);
+    const remainingTitle = remainingEmployees
+      .map((emp) => `${emp.firstName ?? ""} ${(emp.lastName ?? "").trim()}`.trim())
+      .join(", ");
+
     return (
       <AvatarGroup
         avatars={selectedEmployees.map((emp) => ({
-          id: String(emp.employeeId),
-          firstName: emp.firstName,
-          lastName: emp.lastName,
-          src: emp.authPic
+          firstName: emp.firstName ?? "",
+          lastName: (emp.lastName ?? "").trim(),
+          image: emp.authPic || null
         }))}
-        maxVisible={3}
+        max={4}
+        title={remainingTitle || undefined}
       />
     );
   };
@@ -307,7 +311,7 @@ const WorkLocationEmployeeSelector = ({
         aria-expanded={popperOpen}
         aria-haspopup="listbox"
         aria-label={translateText(["form.assignEmployeesLabel"])}
-        className="bg-secondary-background h-12 rounded-lg flex items-center w-full cursor-pointer px-3 focus:outline-2 focus:outline-black focus:-outline-offset-[2px]"
+        className="bg-tertiary-background h-12 rounded-lg flex items-center w-full cursor-pointer px-3 focus:outline-1 focus:outline-primary-accent focus:-outline-offset-[2px]"
         onClick={handleTriggerClick}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -377,13 +381,10 @@ const WorkLocationEmployeeSelector = ({
                     >
                       <Checkbox checked={true} />
                       <AvatarChip
-                        label={`${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim()}
-                        avatarProps={{
-                          id: String(emp.employeeId),
-                          firstName: emp.firstName,
-                          lastName: emp.lastName,
-                          src: emp.authPic
-                        }}
+                        firstName={emp.firstName ?? ""}
+                        lastName={(emp.lastName ?? "").trim()}
+                        avatarUrl={emp.authPic}
+                        isTooltipEnabled
                       />
                     </div>
                   );
@@ -407,7 +408,7 @@ const WorkLocationEmployeeSelector = ({
               }}
             >
               <Checkbox checked={isAllSelected} />
-              <AvatarChip label={translateText(["form.allEmployees"])} />
+              {renderAllEmployeesChip()}
             </div>
           )}
 
@@ -433,13 +434,10 @@ const WorkLocationEmployeeSelector = ({
                   >
                     <Checkbox checked={false} />
                     <AvatarChip
-                      label={`${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim()}
-                      avatarProps={{
-                        id: String(emp.employeeId),
-                        firstName: emp.firstName,
-                        lastName: emp.lastName,
-                        src: emp.authPic
-                      }}
+                      firstName={emp.firstName ?? ""}
+                      lastName={(emp.lastName ?? "").trim()}
+                      avatarUrl={emp.authPic}
+                      isTooltipEnabled
                     />
                   </div>
                 );
